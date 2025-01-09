@@ -1,0 +1,93 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <title>Highcharts Donut Chart</title>
+    </head>
+    <body>
+        <div id="container" style="width: 1600px; height: 800px;"></div>
+        <script>
+            const input_response = [{"name": "C:: Space utilization", "lastvalue": "65.4601"}, {"name": "C:: Total space", "lastvalue": "106819481600"}, {"name": "C:: Used space", "lastvalue": "69924057088"}];
+            const columns = input_response;
+
+            
+        const firstItem = columns[0];
+        const descriptionKey = Object.keys(firstItem)[0];
+        const countKey = Object.keys(firstItem)[1];
+
+        function parseValue(value) {
+            if (!isNaN(value)) {
+                return parseFloat(value);
+            }
+            return value;
+        }
+
+        const descriptionCounts = {};
+        columns.forEach((item) => {
+            const description = item[descriptionKey];
+            const count = parseValue(item[countKey]);
+            descriptionCounts[description] = (descriptionCounts[description] || 0) + count;
+        });
+
+        const pieData = Object.entries(descriptionCounts).map(([description, count]) => ({
+            name: description,
+            y: count
+        }));
+
+        Highcharts.chart('container', {
+            chart: {
+                type: 'pie',
+                animation: false
+            },
+            title: {
+                text: 'AMG Disk Details'
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: 'Description',
+                data: pieData,
+                innerSize: '50%',
+                animation: false,
+                dataLabels: [{
+                    enabled: true,
+                    format: '{point.name}: {point.y}',
+                    distance: 30,
+                    style: {
+                        fontSize: '15px',
+                        fontWeight: 'bold',
+                        color: '#555',
+                        textOutline: 'none',
+                    }
+                }, {
+                    enabled: true,
+                    format: '{point.percentage:.1f} %',
+                    distance: -50,
+                    style: {
+                        fontSize: '15px',
+                        fontWeight: 'bold',
+                        color: 'white',
+                        textOutline: 'none',
+                    },
+                    filter: {
+                        operator: '>',
+                        property: 'percentage',
+                        value: 5
+                    }
+                }]
+            }],
+            plotOptions: {
+                pie: {
+                    showInLegend: true
+                }
+            }
+        });
+        
+        </script>
+    </body>
+    </html>
+    

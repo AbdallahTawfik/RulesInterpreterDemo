@@ -1,0 +1,69 @@
+<style>
+    .indexTemplate body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+        height: 1050;
+    }
+    .indexTemplate table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .indexTemplate th, .indexTemplate td {
+        border: 1px solid #ddd;
+        padding: 5px;
+        text-align: left;
+        word-wrap: break-word;
+    }
+    .indexTemplate th {
+        background-color: #4c93af;
+        color: white;
+    }
+    .indexTemplate tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    .indexTemplate .right {
+        text-align: right;
+    }
+    .indexTemplate .icon {
+        width: 150px;
+    }
+    .indexTemplate .table-container {
+        margin: 20px auto;
+        min-height: 90%; 
+        max-height: 90%;
+        overflow: hidden;
+    }
+    .indexTemplate .footer {
+        text-align: center;
+        font-size: 12px;
+        color: #525252;
+        border-top: 1px solid #525252;
+        padding-top: 5px;
+        margin-top: 25;
+    }
+    .indexTemplate .page-break { page-break-before: always; height: 0; padding: 0; margin: 0;}
+</style>
+<div class="indexTemplate">
+<img src="data:image/png;base64,{{ icon }}" class="icon">
+<div class="table-container">
+<h3>Table of Contents</h3>
+<table>
+    <tr>
+        <th>Name</th>
+        <th class="right">Page Number</th>
+    </tr>
+    {% for table in tables %}
+    <tr>
+        <td>{{ table[0] }}</td>
+        <td class="right">{{ table[1] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+<div class="footer">
+    Page 2
+</div>
+<div class="page-break"></div>
+</div>

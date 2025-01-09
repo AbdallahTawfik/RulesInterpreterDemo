@@ -1,0 +1,60 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <title>Highcharts Line Chart</title>
+    </head>
+    <body>
+        <div id="container" style="width: 1600px; height: 800px;"></div>
+        <script>
+            const input_response = [{"name": "C:: Space utilization", "lastvalue": "65.4866"}, {"name": "C:: Total space", "lastvalue": "106819481600"}, {"name": "C:: Used space", "lastvalue": "69952454656"}];
+            const columns = input_response;
+
+            
+        const firstItem = columns[0];
+        const xKey = Object.keys(firstItem)[0];
+        const yKey = Object.keys(firstItem)[1];
+        
+        const xValues = columns.map(item => item[xKey]);
+        const yValues = columns.map(item => item[yKey]);
+
+        Highcharts.chart('container', {
+            chart: {
+                type: 'line',
+                animation: false
+            },
+            title: {
+                text: 'AMG Disk Details'
+            },
+            credits: {
+                enabled: false
+            },
+            xAxis: {
+                categories: xValues,
+                title: {
+                    text: xKey
+                },
+                labels: {
+                    rotation: -45,
+                    align: 'right'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: yKey
+                }
+            },
+            series: [{
+                name: yKey,
+                data: yValues,
+                animation: false
+            }]
+        });
+        
+        </script>
+    </body>
+    </html>
+    

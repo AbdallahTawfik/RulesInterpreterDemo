@@ -1,0 +1,57 @@
+<style>
+    .lineTemplate body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+        height: 1050px;
+    }
+    .lineTemplate h2 {
+        text-align: center;
+        margin-top: -35px;
+        color: #525252;
+        padding: 0;
+    }
+    .lineTemplate .icon {
+        width: 150px;
+    }
+    .lineTemplate .graph-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 150px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 600px; 
+    }
+    .lineTemplate .graph-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    .lineTemplate .footer {
+        text-align: center;
+        font-size: 12px;
+        color: #525252;
+        border-top: 1px solid #525252;
+        padding-top: 5px;
+        margin-top: 220px;
+    }
+    .lineTemplate .page-break { 
+        page-break-before: always; 
+        height: 0; 
+        padding: 0; 
+        margin: 0;
+    }
+</style>
+<div class="lineTemplate">
+    <img src="data:image/png;base64,{{ icon }}" class="icon">
+    <h2>{{ heading }}</h2>
+    <div class="graph-container">
+        <img src="data:image/png;base64,{{ image_base64 }}">
+    </div>
+    <div class="footer">
+        Page {{ page_number }}
+    </div>
+    <div class="page-break"></div>
+</div>

@@ -1,0 +1,30 @@
+<style>
+    .coverTemplate p { 
+        font-size: 24px; 
+    }
+    .coverTemplate h1 {
+        color: #525252; 
+    }
+    .coverTemplate h2 {
+        color: #525252; 
+    }
+    .coverTemplate h3 {
+        color:blue;
+    }
+
+    /* @page {
+        margin: 50px 0; 
+    } */
+    .coverTemplate .page-break { page-break-before: always; height: 0; padding: 0; margin: 0;}
+</style>
+<div class="coverTemplate">
+<p style="text-align: center;"><img src="data:image/png;base64,{{ cover_image }}" width="1300" height="300" />&nbsp;</p>
+<p style="text-align: center;">&nbsp;</p>
+<h1 style="text-align: center;"><strong>Report Title:</strong></h1>
+<h3 style="text-align: center;">{{title}}</h3>
+<h2 style="text-align: center;"><strong>Report Date:</strong></h2>
+<h3 style="text-align: center;">{{date}}</h3>
+<h2 style="text-align: center;"><strong>Report Description:</strong></h2>
+<h3 style="text-align: center;">{{description}}</h3>
+<div class="page-break"></div>
+</div>

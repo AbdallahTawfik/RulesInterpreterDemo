@@ -1,0 +1,19 @@
+# Ignore everything else
+*
+
+# Allow the .gitignore file itself
+!.gitignore
+
+# Allow specific files
+!getAPIReport.py
+!OpExpertOperations.py
+!RuleBuilder.md
+!test.py
+
+# Allow specific directories
+!images/
+!images/**
+!output/
+!output/**
+!templates/
+!templates/**

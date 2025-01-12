@@ -22,6 +22,8 @@ class YAMLLanguageInterpreter():
             "anObject = Interactions()\n"
             "anObject.login()\n\n"
         )
+        self.existenceOfElifany = False
+        self.trackedReports = set()
         self.recordIterated = []
         self.indices = []
         self.tabsToInclude = 0
@@ -246,7 +248,7 @@ class YAMLLanguageInterpreter():
 
         original_data = f"anObject.getIntegrationWithID('{record_id}',f'{params}')"
         interpretedText += "\t" * self.tabsToInclude + f"{alias} = {original_data}\n"
-
+        interpretedText += "\t" * self.tabsToInclude + f"{alias}Copy = {alias}[:]\n"
         return interpretedText
 
     def __processModule(self, payload):
@@ -413,36 +415,56 @@ def main(arguments):
 Rules:
   -
     Step: 1
-    ActionType: report
-    ReportType: config
-    ReportName: 'Test Report Name'
-    Orientation: Landscape
-    PageSize: Letter
+    ActionType: integration
+    IntegrationID: 677a1508-a5bc-45e5-3c34-673d91571327
+    IntegrationName: 'Jazeera Inactive Hosts Count'
+    AliasName: report
+    UserInput: false
+    UserInputVars: null
   -
     Step: 2
-    ActionType: report
-    ReportType: coverpage
-    Title: 'Test Tile'
-    Description: 'Test Description'
-    TemplateId: 5dad0c10-4f06-bec2-e52d-66c2dffd135c
-    TemplateName: 'Default Cover Page'
+    Condition: 'ifany {  report.unavailable_count == 4'
   -
     Step: 3
     ActionType: report
-    ReportType: index
-    TemplateId: null
-    TemplateName: null
+    ReportType: config
+    ReportName: Test
+    Orientation: Portrait
+    PageSize: A4
   -
     Step: 4
     ActionType: report
+    ReportType: index
+    TemplateId: afe3b001-eb10-9603-5698-66fb77ac69ce
+    TemplateName: 'Default Index Portrait'
+  -
+    Step: 5
+    ActionType: report
     ReportType: table
-    IntegrationID: 5f38872e-08a5-22dd-720b-65c8c5084358
-    IntegrationName: ' Zabbix-Get Problems - Babtain'
-    AliasName: a
+    IntegrationID: 14c91c44-7375-99e0-eec7-673d989e46ac
+    IntegrationName: 'Jazeera Inactive Hosts Details'
+    AliasName: report2
     UserInput: false
-    UserInputVars: null
-    TemplateId: 378e309a-97f3-068e-e9a1-66c2e0a59228
-    TemplateName: 'Default Table'
+    UserInputVars: {  }
+    TemplateId: 93503d18-2182-5339-489f-66fb798b92d2
+    TemplateName: 'Default Table Portrait'
+  -
+    Step: 6
+    Condition: '}'
+  -
+    Step: 7
+    Condition: 'elifany {  report.unavailable_count == 3'
+  -
+    Step: 8
+    ActionType: integration
+    IntegrationID: 6a867ddf-9f0e-43e5-4325-6735985652c4
+    IntegrationName: 'Telegram Alert'
+    AliasName: alert
+    UserInput: false
+    UserInputVars: {  }
+  -
+    Step: 9
+    Condition: '}'
 ""","[to:\"\", cc:, bcc:, emailTemplateID:\"b7e5f922-fdbf-d83f-f9a5-65a3b3b4fa45\", emailTemplateName:null]"]
     
     interpreter.emailArguments = interpreter.convert_to_dict(arguments[2])

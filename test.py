@@ -73,7 +73,7 @@ class YAMLLanguageInterpreter():
         
         interpretedText = ""
         condition = payload.get('Condition')
-        
+        # print(condition)
         if condition.startswith("}"):
             
             if self.existenceOfIfany:
@@ -82,67 +82,103 @@ class YAMLLanguageInterpreter():
                 interpretedText += "\t" * self.tabsToInclude + f"break\n"
                 self.existenceOfIfany = False
                 self.recordCopied = True
+            if self.existenceOfElifany:
+                interpretedText += "\t" * self.tabsToInclude + f"{self.currentRecord} = {self.currentRecord}Copy[:]\n"
+                self.currentRecord = ""
+                interpretedText += "\t" * self.tabsToInclude + f"break\n"
+                self.existenceOfElifany = False
+                self.recordCopied = True
             self.conditionalStatementCount -= condition.count("}")
-            self.tabsToInclude -= self.conditionalStatementCount
-            if self.conditionalStatementCount == 0 and self.existenceOfLoop:
+            self.tabsToInclude -= 1
+            if self.conditionalStatementCount == -1 and self.existenceOfLoop:
                 self.existenceOfLoop = False
-                self.tabsToInclude -= 1
-                if not self.recordCopied:
-                    interpretedText += "\t" * self.tabsToInclude + f"{self.currentRecord} = {self.currentRecord}Copy[:]\n"
-                    self.currentRecord = ""
-                    self.recordCopied = True
-                self.tabsToInclude -= 1
-            else:
-                self.tabsToInclude -= 1
+                self.tabsToInclude = 0
+                for d in self.trackedReports:
+                    interpretedText += "\t" * self.tabsToInclude + f"{d} = {d}Copy[:]\n"
             interpretedText += "\t" * self.tabsToInclude + "\n"
-            return interpretedText
-        
-        recordReferenceOccurrences = re.findall(r'\b(\w+)\.(\w+)', condition)
-        
+        recordReferenceOccurrences = re.findall(r'(\b\w+)\.(\w+)(?=(?:[^"]*"[^"]*")*[^"]*$)', condition)
         if condition.startswith("ifany"): #ifany
             condition = condition.replace("ifany", "if")
             if not self.existenceOfLoop:
-                interpretedText += "\t" * self.tabsToInclude + f"{recordReferenceOccurrences[0][0]}Copy = {recordReferenceOccurrences[0][0]}[:]\n"
                 interpretedText += "\t" * self.tabsToInclude + f"for {recordReferenceOccurrences[0][0]} in {recordReferenceOccurrences[0][0]}Copy:\n"
                 self.existenceOfLoop = True
                 self.recordCopied = False
                 self.tabsToInclude += 1
                 self.currentRecord = recordReferenceOccurrences[0][0]
+                self.trackedReports.add(recordReferenceOccurrences[0][0])
                 
             newCondition = condition.replace("ifany", "if").replace(" { ", " ")
-            newCondition = re.sub(r'(\w+)\.(\w+)', r'\1[\'\2\']', newCondition).replace("\\", "")
+            newCondition = re.sub(r'(\b\w+)\.(\w+)(?=(?:[^"]*"[^"]*")*[^"]*$)', r'\1[\'\2\']', newCondition,count=3).replace("\\", "")
                         
             interpretedText += "\t" * self.tabsToInclude + f"{newCondition}:\n"
             self.existenceOfIfany = True
             self.conditionalStatementCount += 1
             self.tabsToInclude += 1
-            
+
         elif condition.startswith("ifall"): #ifall
             condition = condition.replace("ifall", "if")
             if not self.existenceOfLoop:
-                interpretedText += "\t" * self.tabsToInclude + f"{recordReferenceOccurrences[0][0]}Copy = {recordReferenceOccurrences[0][0]}[:]\n"
                 interpretedText += "\t" * self.tabsToInclude + f"for {recordReferenceOccurrences[0][0]} in {recordReferenceOccurrences[0][0]}Copy:\n"
                 self.existenceOfLoop = True
                 self.recordCopied = False
                 self.tabsToInclude += 1
                 self.currentRecord = recordReferenceOccurrences[0][0]
-                
+                self.trackedReports.add(recordReferenceOccurrences[0][0])                
             newCondition = condition.replace("ifall", "if").replace(" { ", " ")
-            newCondition = re.sub(r'(\w+)\.(\w+)', r'\1[\'\2\']', newCondition).replace("\\", "")
-                        
+            newCondition = re.sub( r'(\b\w+)\.(\w+)(?=(?:[^"]*"[^"]*")*[^"]*$)',r"\1[\'\2\']",newCondition,count=3).replace("\\", "")
             interpretedText += "\t" * self.tabsToInclude + f"{newCondition}:\n"
             self.conditionalStatementCount += 1
             self.tabsToInclude += 1
         
-        elif condition.startswith("if"):
-                
-            newCondition = condition.replace(" { ", " ")
-            newCondition = re.sub(r'(\w+)\.(\w+)', r'\1[\'\2\']', newCondition).replace("\\", "")
-                        
-            interpretedText += "\t" * self.tabsToInclude + f"{html.unescape(newCondition)}:\n"
+        elif condition.startswith("elifall"):
+            if not self.existenceOfLoop:
+                interpretedText += "\t" * self.tabsToInclude + f"for {recordReferenceOccurrences[0][0]} in {recordReferenceOccurrences[0][0]}Copy:\n"
+                self.existenceOfLoop = True
+                self.recordCopied = False
+                self.tabsToInclude += 1
+                self.currentRecord = recordReferenceOccurrences[0][0]
+                self.trackedReports.add(recordReferenceOccurrences[0][0])
+            newCondition = condition.replace("elifall", "elif").replace(" { ", " ")
+            newCondition = re.sub(r'(\b\w+)\.(\w+)(?=(?:[^"]*"[^"]*")*[^"]*$)', r'\1[\'\2\']', newCondition,count=3).replace("\\", "")
+            # print(newCondition)
+            # self.tabsToInclude-=1
+            interpretedText += "\t" * self.tabsToInclude + f"{newCondition}:\n"
             self.conditionalStatementCount += 1
             self.tabsToInclude += 1
         
+        elif condition.startswith("elifany"):
+            if not self.existenceOfLoop:
+                interpretedText += "\t" * self.tabsToInclude + f"for {recordReferenceOccurrences[0][0]} in {recordReferenceOccurrences[0][0]}Copy:\n"
+                self.existenceOfLoop = True
+                self.recordCopied = False
+                self.tabsToInclude += 1
+                self.currentRecord = recordReferenceOccurrences[0][0]
+                self.trackedReports.add(recordReferenceOccurrences[0][0])
+            newCondition = condition.replace("elifany", "elif").replace(" { ", " ")
+            newCondition = re.sub(r'(\b\w+)\.(\w+)(?=(?:[^"]*"[^"]*")*[^"]*$)', r'\1[\'\2\']', newCondition,count=3).replace("\\", "")
+            self.currentRecord = recordReferenceOccurrences[0][0]
+            self.existenceOfElifany = True
+            interpretedText += "\t" * self.tabsToInclude + f"{newCondition}:\n"
+            self.conditionalStatementCount += 1
+            self.tabsToInclude += 1
+
+        elif condition.startswith("if"):
+                
+            newCondition = condition.replace(" { ", " ")
+            newCondition = re.sub(r'(\b\w+)\.(\w+)(?=(?:[^"]*"[^"]*")*[^"]*$)', r'\1[\'\2\']', newCondition).replace("\\", "")
+                        
+            interpretedText += "\t" * (self.tabsToInclude) + f"{html.unescape(newCondition)}:\n"
+            self.conditionalStatementCount += 1
+            self.tabsToInclude += 1
+        
+        elif condition.startswith("elif"):
+                
+            newCondition = condition.replace(" { ", " ")
+            newCondition = re.sub(r'(\b\w+)\.(\w+)(?=(?:[^"]*"[^"]*")*[^"]*$)', r'\1[\'\2\']', newCondition).replace("\\", "")
+                        
+            interpretedText += "\t" * (self.tabsToInclude) + f"{html.unescape(newCondition)}:\n"
+            self.conditionalStatementCount += 1
+            self.tabsToInclude += 1
         return interpretedText
 
     def __processExecution(self, payload):

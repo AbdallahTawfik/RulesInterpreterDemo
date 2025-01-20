@@ -9,6 +9,7 @@ import pdfkit
 import asyncio
 import smtplib
 import datetime
+import uuid
 import requests
 import pandas as pd
 from math import ceil
@@ -751,9 +752,10 @@ async def printPie(response, config, start_page):
 
     # Generate chart.html with data
     await insert_data_into_HTML(response, 'pie', config['tableTitle'])
-
+    unique_id = str(uuid.uuid4())[:8]
+    chart_path = f'/var/tmp/piechart_{unique_id}.png'
     # Capture screenshot
-    await capture_screenshot(f'images/charts/pieChart{start_page}.png', 'templates/pie_chart.html', "pie")
+    await capture_screenshot(chart_path, 'templates/pie_chart.html', "pie")
 
     pageNumber = start_page
 
@@ -765,7 +767,7 @@ async def printPie(response, config, start_page):
     templateContent = retrieveHTMLTemplate(config['template']).replace(
                 "id=\"icon\"", "src=\"file:///home/rundeck/projects/RulesInterpreterApp02/images/logoFull.png\""
             ).replace(
-                "id=\"graph\"", f"src=\"file:///home/rundeck/projects/RulesInterpreterApp02/images/charts/pieChart{start_page}.png\""
+                'id="graph"', f'src="file://{chart_path}"'
             )
             
     if pageSize == 'Letter':
@@ -795,11 +797,13 @@ async def printLine(response, config, start_page):
     """
 
     chart_type = 'line'
+    unique_id = str(uuid.uuid4())[:8]
+    chart_path = f'/var/tmp/linechart_{unique_id}.png'
     # Generate chart.html with data
     await insert_data_into_HTML(response, chart_type, config['tableTitle'])
 
     # Capture screenshot
-    await capture_screenshot(f'images/charts/lineChart{start_page}.png', 'templates/line_chart.html', "line")
+    await capture_screenshot(chart_path, 'templates/line_chart.html', "line")
 
     pageNumber = start_page
 
@@ -811,7 +815,7 @@ async def printLine(response, config, start_page):
     templateContent = retrieveHTMLTemplate(config['template']).replace(
                 'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterApp02/images/logoFull.png"'
             ).replace(
-                'id="graph"', f'src="file:///home/rundeck/projects/RulesInterpreterApp02/images/charts/lineChart{start_page}.png"'
+                'id="graph"', f'src="file://{chart_path}"'
             )
             
     if pageSize == 'Letter':
@@ -842,10 +846,13 @@ async def printBar(response, config, start_page):
 
     chart_type = 'bar'
     # Generate chart.html with data
+    unique_id = str(uuid.uuid4())[:8]
+    chart_path = f'/var/tmp/barchart_{unique_id}.png'
+
     await insert_data_into_HTML(response, chart_type, config['tableTitle'])
 
     # Capture screenshot
-    await capture_screenshot(f'images/charts/barChart{start_page}.png', 'templates/bar_chart.html', "bar")
+    await capture_screenshot(chart_path, 'templates/bar_chart.html', "bar")
 
     pageNumber = start_page
 
@@ -857,7 +864,7 @@ async def printBar(response, config, start_page):
     templateContent = retrieveHTMLTemplate(config['template']).replace(
                 'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterApp02/images/logoFull.png"'
             ).replace(
-                'id="graph"', f'src="file:///home/rundeck/projects/RulesInterpreterApp02/images/charts/barChart{start_page}.png"'
+                'id="graph"', f'src="file://{chart_path}"'
             )
             
     if pageSize == 'Letter':
@@ -887,11 +894,13 @@ async def printDonut(response, config, start_page):
     """
 
     chart_type = 'donut'
-    # Generate chart.html with data
+    # Generate chart.html with data, uuid for giving the chart's unique id to distinguish from the same ones
+    unique_id = str(uuid.uuid4())[:8]                           
+    chart_path = f'/var/tmp/donutchart_{unique_id}.png'
     await insert_data_into_HTML(response, chart_type, config['tableTitle'])
 
     # Capture screenshot
-    await capture_screenshot(f'images/charts/donutChart{start_page}.png', 'templates/donut_chart.html', "donut")
+    await capture_screenshot(chart_path, 'templates/donut_chart.html', "donut")
 
     pageNumber = start_page
 
@@ -903,7 +912,7 @@ async def printDonut(response, config, start_page):
     templateContent = retrieveHTMLTemplate(config['template']).replace(
                 'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterApp02/images/logoFull.png"'
             ).replace(
-                'id="graph"', f'src="file:///home/rundeck/projects/RulesInterpreterApp02/images/charts/donutChart{start_page}.png"'
+                'id="graph"', f'src="file://{chart_path}"'
             )
             
     if pageSize == 'Letter':

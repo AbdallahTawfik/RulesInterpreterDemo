@@ -451,7 +451,7 @@ async def insert_data_into_HTML(data, chart_type, title):
 
         Highcharts.chart('container', {{
             chart: {{
-                type: 'bar',
+                type: 'column',
                 animation: false
             }},
             title: {{

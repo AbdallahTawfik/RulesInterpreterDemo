@@ -727,7 +727,7 @@ def printTable(data, config, start_page):
         page_df = df.iloc[start_index:end_index]
 
         if include_row_numbers:
-            table_html = page_df.to_html(classes='my_table_class', index=True, border=0)
+            table_html = page_df.to_html(classes='my_table_class', index=False, border=0)
         else:
             table_html = page_df.to_html(classes='my_table_class', index=False, border=0)
 

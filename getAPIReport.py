@@ -1114,7 +1114,7 @@ async def printScreenshot(config, start_page):
     await page.goto(url, timeout=300000, waitUntil='networkidle0')
 
     try:
-        await page.waitForSelector('body', timeout=300000)
+        await page.waitForSelector('body', timeout=600000)
     except Exception:
         print("Main content did not load in time.")
 

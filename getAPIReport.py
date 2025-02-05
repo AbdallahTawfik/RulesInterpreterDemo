@@ -173,6 +173,7 @@ def sendEmail(emailArguments, reportName, attachment_path):
     receiver_email = emailArguments['to'].split(',')
     receiver_cc = emailArguments['cc'].split(',')
     receiver_bcc = emailArguments['bcc'].split(',')
+    all_recipients = receiver_email + receiver_cc + receiver_bcc
     reportName = ''.join(reportName.split('_')[1:])
     if 'emailTemplateID' in emailArguments and emailArguments['emailTemplateID'] != "":
         email_ID = emailArguments['emailTemplateID']
@@ -202,7 +203,7 @@ def sendEmail(emailArguments, reportName, attachment_path):
     server = smtplib.SMTP(smtp_server, port)
     server.starttls()
     server.login(username, password)
-    server.sendmail(username, [receiver_email,receiver_cc], message.as_string())
+    server.sendmail(username,all_recipients, message.as_string())
     server.quit()
 
 def convert_yaml(data):

@@ -202,7 +202,7 @@ def sendEmail(emailArguments, reportName, attachment_path):
     server = smtplib.SMTP(smtp_server, port)
     server.starttls()
     server.login(username, password)
-    server.sendmail(username, receiver_email, message.as_string())
+    server.sendmail(username, [receiver_email,receiver_cc], message.as_string())
     server.quit()
 
 def convert_yaml(data):

@@ -1172,7 +1172,7 @@ async def printScreenshot(config, start_page):
     print(f"\t\tDetected largest scrollable element: {element_selector}, scrollHeight: {scroll_height}")
 
     # Set scroll_height to full page height if it's less than the normal full page height
-    FULL_PAGE_HEIGHT = 1080  # Define your full page height here
+    FULL_PAGE_HEIGHT = 1500  # Define your full page height here
     if scroll_height < FULL_PAGE_HEIGHT:
         scroll_height = FULL_PAGE_HEIGHT
 

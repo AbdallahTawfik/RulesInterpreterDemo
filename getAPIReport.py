@@ -957,7 +957,7 @@ async def printScreenshot(config, start_page):
     # Check if 'loginURL' is provided
     if 'loginURL' in config and config['loginURL']:
         print("\t\tOpening the login page")
-        await page.goto(config['loginURL'], timeout=300000, waitUntil='networkidle0')
+        await page.goto(config['loginURL'], timeout=600000, waitUntil='networkidle0')
 
         username_field_appeared = False
         for selector in [
@@ -1196,7 +1196,7 @@ async def printScreenshot(config, start_page):
     if pageOrientation == 'Portrait':
         PAGE_HEIGHT = 1700
     elif pageOrientation == 'Landscape':
-        PAGE_HEIGHT = 1200 
+        PAGE_HEIGHT = 1700 
 
     with Image.open(screenshot_path) as img:
         width, height = img.size

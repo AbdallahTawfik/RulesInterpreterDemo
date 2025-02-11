@@ -978,7 +978,9 @@ async def printScreenshot(config, start_page):
             'input[type="text"][id*="uname"]',
             'input[type="text"][name*="uname"]',
             'input[type="text"][id*="loginid"]',
-            'input[type="text"][name*="loginid"]'
+            'input[type="text"][name*="loginid"]',
+            'input[type="text"][id*="name"]',
+            'input[type="text"][name*="name"]'
         ]:
             try:
                 await page.waitForSelector(selector, timeout=20000)
@@ -1036,7 +1038,9 @@ async def printScreenshot(config, start_page):
             'input[type="text"][id*="uname"]',
             'input[type="text"][name*="uname"]',
             'input[type="text"][id*="loginid"]',
-            'input[type="text"][name*="loginid"]'
+            'input[type="text"][name*="loginid"]',
+            'input[type="text"][id*="name"]',
+            'input[type="text"][name*="name"]'
         ]
 
         password_selectors = [

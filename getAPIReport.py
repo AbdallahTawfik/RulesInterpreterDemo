@@ -953,7 +953,7 @@ async def printScreenshot(config, start_page):
 
     page = await browser.newPage()
     await page.setViewport({'width': 1920, 'height': 1080})
-
+    unique_id = str(uuid.uuid4())[:8]
     # Check if 'loginURL' is provided
     if 'loginURL' in config and config['loginURL']:
         print("\t\tOpening the login page")
@@ -1123,7 +1123,7 @@ async def printScreenshot(config, start_page):
     except Exception:
         print("Main content did not load in time.")
 
-    screenshot_path = f'/var/tmp/{config["tableName"]}_screenshot.png'
+    screenshot_path = f'/var/tmp/{config["tableName"]}_screenshot{unique_id}.png'
 
     # JavaScript function to find the largest scrollable element
     largest_scrollable_element = await page.evaluate('''() => {
@@ -1220,7 +1220,7 @@ async def printScreenshot(config, start_page):
             cropped_img = img.crop(bbox)
 
             # Save the cropped image to a temporary path
-            temp_image_path = f'/var/tmp/{config["tableName"]}_screenshot_part{i+1}.png'
+            temp_image_path = f'/var/tmp/{config["tableName"]}_screenshot_part{i+1}{unique_id}.png'
             cropped_img.save(temp_image_path)
             
             if pageOrientation == 'Landscape':

@@ -1116,7 +1116,7 @@ async def printScreenshot(config, start_page):
     url = config['targetURL']
     print(f"\t\tNavigating to {url}...")
 
-    await page.goto(url, timeout=600000, waitUntil='networkidle0')
+    await page.goto(url, timeout=900000)
 
     try:
         await page.waitForSelector('body', timeout=600000)

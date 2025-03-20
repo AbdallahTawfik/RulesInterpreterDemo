@@ -1185,7 +1185,7 @@ async def printScreenshot(config, start_page):
         'width': 1920,
         'height': scroll_height
     })
-
+    await asyncio.sleep(50)
     # Take a screenshot of the page with adjusted viewport
     await page.screenshot({
         'path': screenshot_path,

@@ -11,49 +11,8 @@ class Interactions:
     
     def __init__(self):
         
-        VAULT_ADDR = "http://vault.opexpert.io"
-        ROLE_ID = "9a88b01d-a49d-2d31-6ba5-4e431a8d7530"
-        SECRET_ID = "1d5bb023-2dc4-6261-127b-22b3a1d06e29"
-        SECRET_PATH = "user_abdallah/data/rules"
-
-        try:
-            auth_response = requests.post(
-                f"{VAULT_ADDR}/v1/auth/approle/login",
-                json={"role_id": ROLE_ID, "secret_id": SECRET_ID}
-            )
-
-            if auth_response.status_code != 200:
-                print(f"Authentication failed: {auth_response.text}")
-                sys.exit(1)
-
-            auth_data = auth_response.json()
-            token = auth_data.get("auth", {}).get("client_token")
-
-            if not token:
-                print("Authentication failed. No token received.")
-                sys.exit(1)
-
-            secret_response = requests.get(
-                f"{VAULT_ADDR}/v1/{SECRET_PATH}",
-                headers={"X-Vault-Token": token}
-            )
-
-            if secret_response.status_code != 200:
-                print(f"Error retrieving the secret: {secret_response.text}")
-                sys.exit(1)
-
-            secret_data = secret_response.json()
-            self.username = secret_data.get("data", {}).get("data", {}).get("username")
-            self.password = secret_data.get("data", {}).get("data", {}).get("password")
-
-            if not self.username or not self.password:
-                print("Error: Secret data is incomplete.")
-                sys.exit(1)
-
-        except requests.RequestException as e:
-            print(f"Error communicating with Vault: {e}")
-            sys.exit(1)
-        
+        self.username = 'vanish'
+        self.password = 'BitsVijay1109'        
         self.CRMURL = 'https://app02.opexpert.com/custom/service/v4_1_custom/rest.php'
         self.sessionID = False
 

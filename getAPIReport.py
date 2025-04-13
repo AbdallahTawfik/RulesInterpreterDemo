@@ -6,7 +6,6 @@ import json
 import base64
 import jinja2
 import pdfkit
-import atexit
 import asyncio
 import smtplib
 import datetime
@@ -26,18 +25,6 @@ from jinja2 import Environment, FileSystemLoader
 from concurrent.futures import ThreadPoolExecutor
 
 os.chdir("/home/rundeck/projects/RulesInterpreterApp02")
-
-def remove_pyppeteer_atexit():
-    # atexit._exithandlers is a list of (func, args, kwargs) tuples registered to run on exit.
-    # We filter out any handlers with the name '_close_process' (the one responsible for calling killChrome).
-    new_handlers = []
-    for func, args, kwargs in atexit._exithandlers:
-        if hasattr(func, '__name__') and func.__name__ == '_close_process':
-            continue  # skip the pyppeteer cleanup handler
-        new_handlers.append((func, args, kwargs))
-    atexit._exithandlers[:] = new_handlers
-
-remove_pyppeteer_atexit()
 
 def readConfig(filename):
     """

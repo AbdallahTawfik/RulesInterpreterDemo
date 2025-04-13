@@ -316,15 +316,7 @@ async def capture_screenshot(image_path, html_path, chart_type):
         None
     """
 
-    browser = await launch(headless=True, args=[
-            '--no-sandbox', 
-            '--disable-setuid-sandbox', 
-            '--disable-dev-shm-usage', 
-            '--disable-gpu', 
-            '--no-zygote', 
-            '--single-process',
-            '--disable-software-rasterizer'
-        ])
+    browser = await launch(headless=True, args=['--no-sandbox', '--headless', '--disable-gpu'])
     page = await browser.newPage()
 
     absolute_path = os.path.abspath(html_path)
@@ -933,19 +925,7 @@ async def printScreenshot(config, start_page):
     """
     Generate a screenshot page, process it, and return the rendered HTML along with the next page number.
     """
-    browser = await launch(
-        headless=True,
-        args=[
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu',
-            '--no-zygote',
-            '--single-process',
-            '--disable-software-rasterizer',
-            '--start-fullscreen'
-        ]
-    )
+    browser = await launch(headless=True, args=['--no-sandbox', '--headless', '--disable-gpu'])
 
     try:
         page = await browser.newPage()

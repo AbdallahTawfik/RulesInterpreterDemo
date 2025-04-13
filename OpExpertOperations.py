@@ -159,6 +159,6 @@ class Interactions:
             return "You cannot proceed with this action without initializing a session."
         
     def getReport(yamlFile,emailConfig): 
-        command = f"python3 /home/rundeck/projects/RulesInterpreterApp02/getAPIReport.py {yamlFile} \"{emailConfig}\""
+        command = f"python3 -X tracemalloc=25 /home/rundeck/projects/RulesInterpreterApp02/getAPIReport.py {yamlFile} \"{emailConfig}\""
         os.system(command)
         

@@ -6,6 +6,7 @@ import json
 import base64
 import jinja2
 import pdfkit
+import atexit
 import asyncio
 import smtplib
 import datetime
@@ -25,6 +26,18 @@ from jinja2 import Environment, FileSystemLoader
 from concurrent.futures import ThreadPoolExecutor
 
 os.chdir("/home/rundeck/projects/RulesInterpreterApp02")
+
+def remove_pyppeteer_atexit():
+    # atexit._exithandlers is a list of (func, args, kwargs) tuples registered to run on exit.
+    # We filter out any handlers with the name '_close_process' (the one responsible for calling killChrome).
+    new_handlers = []
+    for func, args, kwargs in atexit._exithandlers:
+        if hasattr(func, '__name__') and func.__name__ == '_close_process':
+            continue  # skip the pyppeteer cleanup handler
+        new_handlers.append((func, args, kwargs))
+    atexit._exithandlers[:] = new_handlers
+
+remove_pyppeteer_atexit()
 
 def readConfig(filename):
     """
@@ -931,328 +944,305 @@ async def printDonut(response, config, start_page):
 
 async def printScreenshot(config, start_page):
     """
-    Generate a donut chart, capture a screenshot, and return the rendered HTML.
-
-    Args:
-        config: The configuration data.
-        start_page: The starting page number.
-
-    Returns:
-        A tuple containing the rendered HTML and the next page number.
+    Generate a screenshot page, process it, and return the rendered HTML along with the next page number.
     """
-    browser = await launch(headless=True, args=[
-        '--no-sandbox', 
-        '--disable-setuid-sandbox', 
-        '--disable-dev-shm-usage', 
-        '--disable-gpu', 
-        '--no-zygote', 
-        '--single-process',
-        '--disable-software-rasterizer',
-        '--start-fullscreen'
-    ])
-
-    page = await browser.newPage()
-    await page.setViewport({'width': 1920, 'height': 1080})
-    unique_id = str(uuid.uuid4())[:8]
-    # Check if 'loginURL' is provided
-    if 'loginURL' in config and config['loginURL']:
-        print("\t\tOpening the login page")
-        await page.goto(config['loginURL'], timeout=600000, waitUntil='networkidle0')
-
-        username_field_appeared = False
-        for selector in [
-            'input[type="email"]',
-            'input[name="user"]',
-            'input[type="text"][id*="username"]',
-            'input[type="text"][name*="username"]',
-            'input[type="text"][id*="email"]',
-            'input[type="text"][name*="email"]',
-            'input[type="text"][id*="login"]',
-            'input[type="text"][name*="login"]',
-            'input[type="text"][id*="user"]',
-            'input[type="text"][name*="user"]',
-            'input[type="text"][id*="userid"]',
-            'input[type="text"][name*="userid"]',
-            'input[type="text"][id*="usr"]',
-            'input[type="text"][name*="usr"]',
-            'input[type="text"][id*="uname"]',
-            'input[type="text"][name*="uname"]',
-            'input[type="text"][id*="loginid"]',
-            'input[type="text"][name*="loginid"]',
-            'input[type="text"][id*="name"]',
-            'input[type="text"][name*="name"]'
-        ]:
-            try:
-                await page.waitForSelector(selector, timeout=20000)
-                username_field_appeared = True
-                break
-            except:
-                continue
-        if not username_field_appeared:
-            button_selector = 'button[data-test-subj="loginCard-basic/cloud-basic"]'
-            button = await page.querySelector(button_selector)
-            if button:
-                await button.click()
-            else:
-                print("Username field did not appear.")
-
-        password_field_appeared = False
-        for selector in [
-            'input[type="password"]',
-            'input[name="password"]',
-            'input[type="password"][id*="password"]',
-            'input[type="password"][name*="password"]',
-            'input[type="password"][id*="pass"]',
-            'input[type="password"][name*="pass"]',
-            'input[type="password"][id*="pwd"]',
-            'input[type="password"][name*="pwd"]',
-            'input[type="password"][id*="secret"]',
-            'input[type="password"][name*="secret"]',
-            'input[type="password"][id*="passwd"]',
-            'input[type="password"][name*="passwd"]'
-        ]:
-            try:
-                await page.waitForSelector(selector, timeout=20000)
-                password_field_appeared = True
-                break
-            except:
-                continue
-        if not password_field_appeared:
-            print("Password field did not appear.")
-
-        username_selectors = [
-            'input[type="email"]',
-            'input[name="user"]',
-            'input[type="text"][id*="username"]',
-            'input[type="text"][name*="username"]',
-            'input[type="text"][id*="email"]',
-            'input[type="text"][name*="email"]',
-            'input[type="text"][id*="login"]',
-            'input[type="text"][name*="login"]',
-            'input[type="text"][id*="user"]',
-            'input[type="text"][name*="user"]',
-            'input[type="text"][id*="userid"]',
-            'input[type="text"][name*="userid"]',
-            'input[type="text"][id*="usr"]',
-            'input[type="text"][name*="usr"]',
-            'input[type="text"][id*="uname"]',
-            'input[type="text"][name*="uname"]',
-            'input[type="text"][id*="loginid"]',
-            'input[type="text"][name*="loginid"]',
-            'input[type="text"][id*="name"]',
-            'input[type="text"][name*="name"]'
+    browser = await launch(
+        headless=True,
+        args=[
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--no-zygote',
+            '--single-process',
+            '--disable-software-rasterizer',
+            '--start-fullscreen'
         ]
-
-        password_selectors = [
-            'input[type="password"]',
-            'input[name="password"]',
-            'input[type="password"][id*="password"]',
-            'input[type="password"][name*="password"]',
-            'input[type="password"][id*="pass"]',
-            'input[type="password"][name*="pass"]',
-            'input[type="password"][id*="pwd"]',
-            'input[type="password"][name*="pwd"]',
-            'input[type="password"][id*="secret"]',
-            'input[type="password"][name*="secret"]',
-            'input[type="password"][id*="passwd"]',
-            'input[type="password"][name*="passwd"]'
-        ]
-        
-        # Function to find and fill the username field
-        async def fill_username_field():
-            for selector in username_selectors:
-                try:
-                    element = await page.querySelector(selector)
-                    if element:
-                        await page.type(selector, config['username'], {'delay': 50})
-                        return True
-                except Exception:
-                    continue
-            print("Username field not found.")
-            return False
-        
-        # Function to find and fill the password field
-        async def fill_password_field():
-            for selector in password_selectors:
-                try:
-                    element = await page.querySelector(selector)
-                    if element:
-                        await page.type(selector, config['password'], {'delay': 50})
-                        return True
-                except Exception:
-                    continue
-            print("Password field not found.")
-            return False
-        
-        # Call the functions to fill the fields
-        username_filled = await fill_username_field()
-        password_filled = await fill_password_field()
-        
-        if username_filled and password_filled:
-            # Attempt to find and click the login button
-            try:
-                login_buttons = await page.xpath(
-                    "//button["
-                    "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'login') or "
-                    "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'log in') or "
-                    "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'signin') or "
-                    "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign in')"
-                    "]"
-                )
-                if login_buttons:
-                    await login_buttons[0].click()
-                    print("\t\tLogged in successfully")
-                    print("\t\tWaiting for page load...")
-                    await page.waitForNavigation(timeout=120000, waitUntil='networkidle0')
-                else:
-                    print("Login button not found.")
-            except Exception:
-                print("Login took too long to respond. Please check the login credentials.")
-        else:
-            print("Could not fill all required fields.")
-    else:
-        print("\t\tNo login URL provided. Skipping login step.")
-
-    url = config['targetURL']
-    print(f"\t\tNavigating to {url}...")
-
-    await page.goto(url, timeout=900000)
+    )
 
     try:
-        await page.waitForSelector('body', timeout=600000)
-    except Exception:
-        print("Main content did not load in time.")
+        page = await browser.newPage()
+        await page.setViewport({'width': 1920, 'height': 1080})
+        unique_id = str(uuid.uuid4())[:8]
 
-    screenshot_path = f'/var/tmp/{config["tableName"]}_screenshot{unique_id}.png'
+        # If 'loginURL' is provided, attempt login.
+        if 'loginURL' in config and config['loginURL']:
+            print("\t\tOpening the login page")
+            await page.goto(config['loginURL'], timeout=600000, waitUntil='networkidle0')
 
-    # JavaScript function to find the largest scrollable element
-    largest_scrollable_element = await page.evaluate('''() => {
-        function getScrollableElement() {
-            let maxVisibleHeight = 0;
-            let largestElement = document.body;
+            # Attempt to locate username field.
+            username_field_appeared = False
+            for selector in [
+                'input[type="email"]',
+                'input[name="user"]',
+                'input[type="text"][id*="username"]',
+                'input[type="text"][name*="username"]',
+                'input[type="text"][id*="email"]',
+                'input[type="text"][name*="email"]',
+                'input[type="text"][id*="login"]',
+                'input[type="text"][name*="login"]',
+                'input[type="text"][id*="user"]',
+                'input[type="text"][name*="user"]',
+                'input[type="text"][id*="userid"]',
+                'input[type="text"][name*="userid"]',
+                'input[type="text"][id*="usr"]',
+                'input[type="text"][name*="usr"]',
+                'input[type="text"][id*="uname"]',
+                'input[type="text"][name*="uname"]',
+                'input[type="text"][id*="loginid"]',
+                'input[type="text"][name*="loginid"]',
+                'input[type="text"][id*="name"]',
+                'input[type="text"][name*="name"]'
+            ]:
+                try:
+                    await page.waitForSelector(selector, timeout=20000)
+                    username_field_appeared = True
+                    break
+                except Exception:
+                    continue
 
-            function checkScrollable(node) {
-                const rect = node.getBoundingClientRect();
-                if (rect.height > 0 && node.scrollHeight > node.clientHeight) {
-                    const visibleHeight = rect.height;
-                    if (visibleHeight > maxVisibleHeight) {
-                        maxVisibleHeight = visibleHeight;
-                        largestElement = node;
+            if not username_field_appeared:
+                button_selector = 'button[data-test-subj="loginCard-basic/cloud-basic"]'
+                button = await page.querySelector(button_selector)
+                if button:
+                    await button.click()
+                else:
+                    print("Username field did not appear.")
+
+            # Attempt to fill password field.
+            password_field_appeared = False
+            for selector in [
+                'input[type="password"]',
+                'input[name="password"]',
+                'input[type="password"][id*="password"]',
+                'input[type="password"][name*="password"]',
+                'input[type="password"][id*="pass"]',
+                'input[type="password"][name*="pass"]',
+                'input[type="password"][id*="pwd"]',
+                'input[type="password"][name*="pwd"]',
+                'input[type="password"][id*="secret"]',
+                'input[type="password"][name*="secret"]',
+                'input[type="password"][id*="passwd"]',
+                'input[type="password"][name*="passwd"]'
+            ]:
+                try:
+                    await page.waitForSelector(selector, timeout=20000)
+                    password_field_appeared = True
+                    break
+                except Exception:
+                    continue
+
+            if not password_field_appeared:
+                print("Password field did not appear.")
+
+            # Helper functions to fill in the username and password fields.
+            async def fill_field(selectors, value, field_name):
+                for selector in selectors:
+                    try:
+                        element = await page.querySelector(selector)
+                        if element:
+                            await page.type(selector, value, {'delay': 50})
+                            return True
+                    except Exception:
+                        continue
+                print(f"{field_name} field not found.")
+                return False
+
+            username_selectors = [
+                'input[type="email"]',
+                'input[name="user"]',
+                'input[type="text"][id*="username"]',
+                'input[type="text"][name*="username"]',
+                'input[type="text"][id*="email"]',
+                'input[type="text"][name*="email"]',
+                'input[type="text"][id*="login"]',
+                'input[type="text"][name*="login"]',
+                'input[type="text"][id*="user"]',
+                'input[type="text"][name*="user"]',
+                'input[type="text"][id*="userid"]',
+                'input[type="text"][name*="userid"]',
+                'input[type="text"][id*="usr"]',
+                'input[type="text"][name*="usr"]',
+                'input[type="text"][id*="uname"]',
+                'input[type="text"][name*="uname"]',
+                'input[type="text"][id*="loginid"]',
+                'input[type="text"][name*="loginid"]',
+                'input[type="text"][id*="name"]',
+                'input[type="text"][name*="name"]'
+            ]
+            password_selectors = [
+                'input[type="password"]',
+                'input[name="password"]',
+                'input[type="password"][id*="password"]',
+                'input[type="password"][name*="password"]',
+                'input[type="password"][id*="pass"]',
+                'input[type="password"][name*="pass"]',
+                'input[type="password"][id*="pwd"]',
+                'input[type="password"][name*="pwd"]',
+                'input[type="password"][id*="secret"]',
+                'input[type="password"][name*="secret"]',
+                'input[type="password"][id*="passwd"]',
+                'input[type="password"][name*="passwd"]'
+            ]
+            username_filled = await fill_field(username_selectors, config['username'], "Username")
+            password_filled = await fill_field(password_selectors, config['password'], "Password")
+
+            if username_filled and password_filled:
+                try:
+                    login_buttons = await page.xpath(
+                        "//button["
+                        "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'login') or "
+                        "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'log in') or "
+                        "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'signin') or "
+                        "contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'sign in')"
+                        "]"
+                    )
+                    if login_buttons:
+                        await login_buttons[0].click()
+                        print("\t\tLogged in successfully")
+                        print("\t\tWaiting for page load...")
+                        await page.waitForNavigation(timeout=120000, waitUntil='networkidle0')
+                    else:
+                        print("Login button not found.")
+                except Exception:
+                    print("Login took too long to respond. Please check the login credentials.")
+            else:
+                print("Could not fill all required fields.")
+
+        else:
+            print("\t\tNo login URL provided. Skipping login step.")
+
+        url = config['targetURL']
+        print(f"\t\tNavigating to {url}...")
+        await page.goto(url, timeout=900000)
+
+        try:
+            await page.waitForSelector('body', timeout=600000)
+        except Exception:
+            print("Main content did not load in time.")
+
+        # Define a unique screenshot file path.
+        screenshot_path = f'/var/tmp/{config["tableName"]}_screenshot{unique_id}.png'
+
+        # Find the largest scrollable element.
+        largest_scrollable_element = await page.evaluate('''() => {
+            function getScrollableElement() {
+                let maxVisibleHeight = 0;
+                let largestElement = document.body;
+
+                function checkScrollable(node) {
+                    const rect = node.getBoundingClientRect();
+                    if (rect.height > 0 && node.scrollHeight > node.clientHeight) {
+                        const visibleHeight = rect.height;
+                        if (visibleHeight > maxVisibleHeight) {
+                            maxVisibleHeight = visibleHeight;
+                            largestElement = node;
+                        }
                     }
                 }
-            }
 
-            function walkDOM(node) {
-                checkScrollable(node);
-                for (let i = 0; i < node.children.length; i++) {
-                    walkDOM(node.children[i]);
+                function walkDOM(node) {
+                    checkScrollable(node);
+                    for (let i = 0; i < node.children.length; i++) {
+                        walkDOM(node.children[i]);
+                    }
                 }
+
+                walkDOM(document.body);
+                return largestElement;
             }
 
-            walkDOM(document.body);
-            return largestElement;
-        }
+            const scrollableElement = getScrollableElement();
+            const rect = scrollableElement.getBoundingClientRect();
+            return {
+                tag: scrollableElement.tagName,
+                scrollHeight: scrollableElement.scrollHeight,
+                width: rect.width,
+                height: rect.height,
+                selector: scrollableElement.tagName.toLowerCase() +
+                          (scrollableElement.id ? "#" + scrollableElement.id : "") +
+                          (scrollableElement.className ? "." + scrollableElement.className.replace(/ /g, ".") : "")
+            };
+        }''')
 
-        const scrollableElement = getScrollableElement();
-        const rect = scrollableElement.getBoundingClientRect();
-        return {
-            tag: scrollableElement.tagName,
-            scrollHeight: scrollableElement.scrollHeight,
-            width: rect.width,
-            height: rect.height,
-            selector: scrollableElement.tagName.toLowerCase() + 
-                    (scrollableElement.id ? "#" + scrollableElement.id : "") + 
-                    (scrollableElement.className ? "." + scrollableElement.className.replace(/ /g, ".") : "")
-        };
-    }''')
+        scroll_height = largest_scrollable_element['scrollHeight']
+        print(f"\t\tDetected largest scrollable element: {largest_scrollable_element['selector']}, scrollHeight: {scroll_height}")
 
-    # Extract details from the largest scrollable element
-    scroll_height = largest_scrollable_element['scrollHeight']
-    element_width = largest_scrollable_element['width']
-    element_height = largest_scrollable_element['height']
-    element_selector = largest_scrollable_element['selector']
+        FULL_PAGE_HEIGHT = 1500  # Adjust as needed.
+        if scroll_height < FULL_PAGE_HEIGHT:
+            scroll_height = FULL_PAGE_HEIGHT
 
-    # Print debug info to see which element was selected
-    print(f"\t\tDetected largest scrollable element: {element_selector}, scrollHeight: {scroll_height}")
+        await page.setViewport({'width': 1920, 'height': scroll_height})
+        # Allow some extra time for the adjustments.
+        await asyncio.sleep(2)
 
-    # Set scroll_height to full page height if it's less than the normal full page height
-    FULL_PAGE_HEIGHT = 1500  # Define your full page height here
-    if scroll_height < FULL_PAGE_HEIGHT:
-        scroll_height = FULL_PAGE_HEIGHT
+        # Capture a screenshot using the dynamically adjusted viewport.
+        await page.screenshot({
+            'path': screenshot_path,
+            'fullPage': False
+        })
+        print(f"\t\tTook a screenshot of {url}")
 
-    # Set the viewport to the size of the detected element or full page height
-    await page.setViewport({
-        'width': 1920,
-        'height': scroll_height
-    })
-    await asyncio.sleep(50)
-    # Take a screenshot of the page with adjusted viewport
-    await page.screenshot({
-        'path': screenshot_path,
-        'fullPage': False  # Capture based on the dynamic viewport height
-    })
-    print(f"\t\tTook a screenshot of {url}")
+        # Close the browser after processing the screenshot.
+        # Image processing: crop and split into pages.
+        if pageOrientation == 'Portrait':
+            PAGE_HEIGHT = 1700
+        elif pageOrientation == 'Landscape':
+            PAGE_HEIGHT = 1700
 
-    await browser.close()
-    print("\t\tBrowser closed")
-
-    # Continue with your image processing and HTML rendering code
-    if pageOrientation == 'Portrait':
-        PAGE_HEIGHT = 1700
-    elif pageOrientation == 'Landscape':
-        PAGE_HEIGHT = 1700 
-
-    with Image.open(screenshot_path) as img:
-        width, height = img.size
-        num_pages = ceil(height / PAGE_HEIGHT)
-        print(f"\t\tScreenshot height: {height}px, splitting into {num_pages} page(s).")
-
-        html_pages = ""
-        page_number = start_page
-
-        for i in range(num_pages):
-            upper = i * PAGE_HEIGHT
-            lower = (i + 1) * PAGE_HEIGHT
-            if lower > height:
-                lower = height
-
-            bbox = (0, upper, width, lower)
-            cropped_img = img.crop(bbox)
-
-            # Save the cropped image to a temporary path
-            temp_image_path = f'/var/tmp/{config["tableName"]}_screenshot_part{i+1}{unique_id}.png'
-            cropped_img.save(temp_image_path)
+        from math import ceil
+        with Image.open(screenshot_path) as img:
+            width, height = img.size
+            num_pages = ceil(height / PAGE_HEIGHT)
+            print(f"\t\tScreenshot height: {height}px, splitting into {num_pages} page(s).")
             
-            if pageOrientation == 'Landscape':
-                templateID = 'a57000ba-cca7-b074-3198-66ceef65c189'
-                # templateID = '235bde2d-b263-cd51-cae2-674d9702cdc6'
-            elif pageOrientation == 'Portrait':
-                templateID = '695c88c1-efe2-0750-9b38-66fb79f45eaa'
-                # templateID = '8b609337-0bee-6d31-8836-674d99e5d7ec'
+            html_pages = ""
+            page_number = start_page
 
-            # Render the HTML content for this page
-            env = Environment()
-            templateContent = retrieveHTMLTemplate(templateID).replace(
-                'id="icon"', f'src="file://{os.getcwd()}/images/logoFull.png"'
-            ).replace(
-                'id="graph"', f'src="file://{temp_image_path}"'
-            )
-            
-            if pageSize == 'Letter':
-                templateContent = templateContent.replace('PAGESIZE', '880px')
-                templateContent = templateContent.replace('PORTSIZE', '1550px')
-            elif pageSize == 'A4':
-                templateContent = templateContent.replace('PAGESIZE', '850px')
-                templateContent = templateContent.replace('PORTSIZE', '1730px')
-        
-            template = env.from_string(templateContent)
+            for i in range(num_pages):
+                upper = i * PAGE_HEIGHT
+                lower = (i + 1) * PAGE_HEIGHT
+                if lower > height:
+                    lower = height
 
-            rendered_html = template.render(page_number=page_number, heading=config['tableName'])
-            html_pages += rendered_html
-            page_number += 1
+                bbox = (0, upper, width, lower)
+                cropped_img = img.crop(bbox)
 
-    # Return the combined HTML content and the updated next page number
-    return html_pages, page_number
+                temp_image_path = f'/var/tmp/{config["tableName"]}_screenshot_part{i+1}{unique_id}.png'
+                cropped_img.save(temp_image_path)
+
+                # Choose the template depending on orientation.
+                if pageOrientation == 'Landscape':
+                    templateID = 'a57000ba-cca7-b074-3198-66ceef65c189'
+                elif pageOrientation == 'Portrait':
+                    templateID = '695c88c1-efe2-0750-9b38-66fb79f45eaa'
+
+                env = Environment()
+                templateContent = retrieveHTMLTemplate(templateID).replace(
+                    'id="icon"', f'src="file://{os.getcwd()}/images/logoFull.png"'
+                ).replace(
+                    'id="graph"', f'src="file://{temp_image_path}"'
+                )
+                
+                if pageSize == 'Letter':
+                    templateContent = templateContent.replace('PAGESIZE', '880px').replace('PORTSIZE', '1550px')
+                elif pageSize == 'A4':
+                    templateContent = templateContent.replace('PAGESIZE', '850px').replace('PORTSIZE', '1730px')
+                    
+                template = env.from_string(templateContent)
+                rendered_html = template.render(page_number=page_number, heading=config['tableName'])
+                html_pages += rendered_html
+                page_number += 1
+
+        return html_pages, page_number
+
+    except Exception as e:
+        print(f"Error in printScreenshot: {e}")
+        return "", start_page  # Return an empty string and unchanged page number on error.
+    
+    finally:
+        await browser.close()
+        print("\t\tBrowser closed")
 
 def printIndex(index_content, config):
     """

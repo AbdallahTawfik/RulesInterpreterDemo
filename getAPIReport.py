@@ -1068,7 +1068,7 @@ async def printScreenshot(config, start_page):
                         await login_buttons[0].click()
                         print("\t\tLogged in successfully")
                         print("\t\tWaiting for page load...")
-                        await page.waitForNavigation(timeout=120000, waitUntil='networkidle0')
+                        await page.waitForNavigation(timeout=600000, waitUntil='networkidle0')
                     else:
                         print("Login button not found.")
                 except Exception:

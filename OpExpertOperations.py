@@ -13,7 +13,7 @@ class Interactions:
         
         self.username = 'vanish'
         self.password = 'BitsVijay1109'        
-        self.CRMURL = 'https://app02.opexpert.com/custom/service/v4_1_custom/rest.php'
+        self.CRMURL = 'https://apigw.demo.opexpert.io/custom/service/v4_1_custom/rest.php'
         self.sessionID = False
 
     def login(self):

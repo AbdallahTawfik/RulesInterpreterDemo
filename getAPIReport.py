@@ -1081,10 +1081,10 @@ async def printScreenshot(config, start_page):
 
         url = config['targetURL']
         print(f"\t\tNavigating to {url}...")
-        await page.goto(url, timeout=900000)
+        await page.goto(url, options ={'timeout':900000})
 
         try:
-            await page.waitForSelector('body', timeout=600000)
+            await page.waitForSelector('body', options = {'timeout':600000})
         except Exception:
             print("Main content did not load in time.")
 

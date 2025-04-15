@@ -1388,11 +1388,5 @@ async def main(filename, emailArguments):
 if __name__ == "__main__":
     filename = sys.argv[1]
     emailArguments = sys.argv[2]
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    try:
-        loop.run_until_complete(main(filename, emailArguments))
-    finally:
-        loop.run_until_complete(loop.shutdown_asyncgens())
-        loop.close()
+    asyncio.run(main(filename,emailArguments))
 # vijay

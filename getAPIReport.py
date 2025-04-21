@@ -719,10 +719,14 @@ def printTable(data, config, start_page):
         end_index = start_index + rows_per_page
         page_df = df.iloc[start_index:end_index]
 
+        for col in page_df.columns:
+            page_df.loc[:, col] = page_df[col].astype(str).apply(
+                lambda x: f'<pre>{x}</pre>'
+            )
         if include_row_numbers:
-            table_html = page_df.to_html(classes='my_table_class', index=False, border=0)
+            table_html = page_df.to_html(classes='my_table_class', index=False, border=0, escape=False)
         else:
-            table_html = page_df.to_html(classes='my_table_class', index=False, border=0)
+            table_html = page_df.to_html(classes='my_table_class', index=False, border=0, escape=False)
 
         rendered_html = template.render(table=table_html, page_number=current_page, heading=config['tableName'], include_row_numbers=include_row_numbers)
         html_content += rendered_html

@@ -270,6 +270,8 @@ def convert_yaml(data):
                     'tableName': item.get('AliasName'),
                     'tableTitle': item.get('IntegrationName'),
                     'template': item.get('TemplateId','378e309a-97f3-068e-e9a1-66c2e0a59228'),
+                    'UserInput': item.get('UserInput', 'False'),
+                    'UserInputVars': item.get('UserInputVars', []),
                     # 'template': 'defaultTable',
                     'includeRowNumbers': True
                 })

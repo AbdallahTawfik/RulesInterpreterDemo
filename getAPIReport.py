@@ -60,7 +60,7 @@ def getApiReport(data):
     crm_interaction.login()
     report_id = data.get('reportID')
     if data.get('UserInput'):
-        # print(data.get('UserInputVars'))
+        print(data.get('UserInputVars'))
         params = dict_to_string(data.get('UserInputVars')) if data.get('UserInputVars') != None else []
         # print(params)
         return crm_interaction.getIntegrationWithID(report_id,f'{params}')

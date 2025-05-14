@@ -48,7 +48,7 @@ class Interactions:
 
     def getIntegrationWithID(self, reportID = '', params=''):
         if self.sessionID:
-            
+            print(params)
             data = {
                 'session': self.sessionID, 
                 'report_id': reportID, 

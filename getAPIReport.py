@@ -36,6 +36,19 @@ def readConfig(filename):
         data = yaml.safe_load(file)
     return data
 
+def dict_to_string(data):
+
+    result = '[{'
+    for i, (key, value) in enumerate(data.items()):
+            # if '.' in value:
+            #     obj, var = value.split('.')
+            #     result += f'"{key}": "{{{obj}["{var}"]}}"'
+            # else:
+        result += f'"{key}": "{value}"'
+        if i < len(data) - 1:
+            result += ', '
+    result += '}]' 
+    return result
 def getApiReport(data):
     """
     Retrieves report data from an API.
@@ -46,8 +59,16 @@ def getApiReport(data):
     crm_interaction = Interactions()
     crm_interaction.login()
     report_id = data.get('reportID')
+    if data.get('UserInput'):
+        # print(data.get('UserInputVars'))
+        params = dict_to_string(data.get('UserInputVars')) if data.get('UserInputVars') != None else []
+        # print(params)
+        return crm_interaction.getIntegrationWithID(report_id,f'{params}')
+    else:
+    # print(data)
+    # print(crm_interaction.getIntegrationWithID(report_id))
+        return crm_interaction.getIntegrationWithID(report_id)
 
-    return crm_interaction.getIntegrationWithID(report_id)
     
 def retrieveReports(config):
     """
@@ -720,9 +741,9 @@ def printTable(data, config, start_page):
         page_df = df.iloc[start_index:end_index]
 
         for col in page_df.columns:
-            page_df.loc[:, col] = page_df[col].astype(str).apply(
-                lambda x: f'<pre>{x}</pre>'
-            )
+            page_df[col] = page_df[col].astype('object')  # Step 1: convert dtype first
+            page_df[col] = page_df[col].apply(lambda x: f'<pre>{x}</pre>')  # Step 2: format
+
         if include_row_numbers:
             table_html = page_df.to_html(classes='my_table_class', index=False, border=0, escape=False)
         else:

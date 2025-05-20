@@ -53,7 +53,7 @@ class Interactions:
                 'session': self.sessionID, 
                 'report_id': reportID, 
                 'UserInputParams': base64.b64encode(params.encode()).decode(),
-                'request_keys':true
+                'request_keys':'true'
             }
             try:
                 return self.__call('getAPIReportResponse', data)

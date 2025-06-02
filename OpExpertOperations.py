@@ -144,14 +144,14 @@ class Interactions:
             data = {
                 'session': self.sessionID, 
                 'module_name': "EmailTemplates", 
-                'query': f"email_templates.id = '{reportID}'", 
-                'order_by': '', 
-                'offset': 0, 
+                'id': f"{reportID}", 
+                'select_fields': [], 
+                'link_name_to_fields_array': [], 
                 'deleted': False
             }
             
             try:
-                code = self.__call('get_entry_list',data)['entry_list'][0]['name_value_list']['body_html']['value']
+                code = self.__call('get_entry',data)['entry_list'][0]['name_value_list']['body_html']['value']
                 return code if code else 'return None'
             except:
                 return "An error occurred. Please try again after verifying your session ID and report ID."

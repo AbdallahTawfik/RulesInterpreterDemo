@@ -252,62 +252,76 @@ def convert_yaml(data):
                     'pageSize': item.get('PageSize', 'Letter'),
                 }
             elif report_type == 'coverpage':
+                template_id = item.get('TemplateId')
+                if not template_id:
+                    template_id = '5dad0c10-4f06-bec2-e52d-66c2dffd135c'
                 result['printCoverPage'] = {
                     'title': item.get('Title'),
                     'description': item.get('Description', 'This is a test'),
                     'date': item.get('Date', '01/01/2024'),
-                    'template': item.get('TemplateId')
-                    # 'template': 'defaultCoverPage'
+                    'template': template_id
                 }
             elif report_type == 'index':
+                template_id = item.get('TemplateId')
+                if not template_id:
+                    template_id = '16e000a5-e417-4be6-f5a9-66c2e0744402'
                 result['printIndex'] = {
-                    'template': item.get('TemplateId','16e000a5-e417-4be6-f5a9-66c2e0744402')
-                    # 'template': 'defaultIndex'
+                    'template': template_id
                 }
             elif report_type == 'table':
+                template_id = item.get('TemplateId')
+                if not template_id:
+                    template_id = '378e309a-97f3-068e-e9a1-66c2e0a59228'
                 result['printTable'].append({
                     'reportID': item.get('IntegrationID'),
                     'tableName': item.get('AliasName'),
                     'tableTitle': item.get('IntegrationName'),
-                    'template': item.get('TemplateId','378e309a-97f3-068e-e9a1-66c2e0a59228'),
+                    'template': template_id,
                     'UserInput': item.get('UserInput', 'False'),
                     'UserInputVars': item.get('UserInputVars', []),
-                    # 'template': 'defaultTable',
                     'includeRowNumbers': True
                 })
             elif report_type == 'pie':
+                template_id = item.get('TemplateId')
+                if not template_id:
+                    template_id = 'ef967964-dfcd-ac49-a207-66c2d972eb34'
                 result['printPie'].append({
                     'reportID': item.get('IntegrationID'),
                     'tableName': item.get('AliasName'),
                     'tableTitle': item.get('IntegrationName'),
-                    'template': item.get('TemplateId','ef967964-dfcd-ac49-a207-66c2d972eb34')
-                    # 'template': 'defaultPie'
+                    'template': template_id
                 })
             elif report_type == 'line':
+                template_id = item.get('TemplateId')
+                if not template_id:
+                    template_id = '5b0d2dac-d106-bcd1-7328-66c2e03c683a'
                 result['printLine'].append({
                     'reportID': item.get('IntegrationID'),
                     'tableName': item.get('AliasName'),
                     'tableTitle': item.get('IntegrationName'),
-                    'template': item.get('TemplateId','5b0d2dac-d106-bcd1-7328-66c2e03c683a'),
-                    # 'template': 'defaultLine',
+                    'template': template_id,
                     'grid': True
                 })
             elif report_type == 'bar':
+                template_id = item.get('TemplateId')
+                if not template_id:
+                    template_id = '31fef628-e312-854a-d418-66ac5f7d9f2f'
                 result['printBar'].append({
                     'reportID': item.get('IntegrationID'),
                     'tableName': item.get('AliasName'),
                     'tableTitle': item.get('IntegrationName'),
-                    'template': item.get('TemplateId','31fef628-e312-854a-d418-66ac5f7d9f2f'),
-                    # 'template': 'defaultBar',
+                    'template': template_id,
                     'grid': False
                 })
             elif report_type == 'donut':
+                template_id = item.get('TemplateId')
+                if not template_id:
+                    template_id = 'c08ed299-f282-ba3d-f394-66c8452589bb'
                 result['printDonut'].append({
                     'reportID': item.get('IntegrationID'),
                     'tableName': item.get('AliasName'),
                     'tableTitle': item.get('IntegrationName'),
-                    'template': item.get('TemplateId','c08ed299-f282-ba3d-f394-66c8452589bb'),
-                    # 'template': 'defaultDonut',
+                    'template': template_id,
                 })
             elif report_type == 'screenshot':
                 result['printScreenshot'].append({
@@ -319,9 +333,11 @@ def convert_yaml(data):
                     'template': 'a57000ba-cca7-b074-3198-66ceef65c189'
                 })
             elif report_type == 'close':
+                template_id = item.get('TemplateId')
+                if not template_id:
+                    template_id = '69624102-595c-f08f-6b86-66c2df2a615f'
                 result['printClose'] = {
-                    'template': item.get('TemplateId')
-                    # 'template': 'defaultClose'
+                    'template': template_id
                 }
 
     result['mainConfig'] = main_config

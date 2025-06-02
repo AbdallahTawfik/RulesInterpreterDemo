@@ -122,14 +122,14 @@ class Interactions:
             data = {
                 'session': self.sessionID, 
                 'module_name': 'bc_html_writer', 
-                'query': f"{'bc_html_writer'.lower()}.id = \'{reportID}\'", 
-                'order_by': '', 
-                'offset': 0, 
-                'deleted': False
+                'id': f"{reportID}", 
+                'select_fields': [], 
+                'link_name_to_fields_array': [], 
+                'track_view': False
             }
             
             try:
-                code = unquote(self.__call('get_entry_list',data)['entry_list'][0]['name_value_list']['html_body']['value'])
+                code = unquote(self.__call('get_entry',data)['entry_list'][0]['name_value_list']['html_body']['value'])
                 return code if code else 'return None'
             except:
                 return "An error occurred. Please try again after verifying your session ID and report ID."

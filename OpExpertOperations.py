@@ -11,9 +11,9 @@ class Interactions:
     
     def __init__(self):
         
-        self.username = 'vanish'
+        self.username = 'code@opexpert.com'
         self.password = 'BitsVijay1109'        
-        self.CRMURL = 'https://apigw.uat.opexpert.io/custom/service/v4_1_custom/rest.php'
+        self.CRMURL = 'https://apigw.demo.opexpert.io/custom/service/v4_1_custom/rest.php'
         self.sessionID = False
 
     def login(self):

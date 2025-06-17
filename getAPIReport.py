@@ -24,7 +24,7 @@ from email.mime.multipart import MIMEMultipart
 from jinja2 import Environment, FileSystemLoader
 from concurrent.futures import ThreadPoolExecutor
 
-os.chdir("/home/rundeck/projects/RulesInterpreterApp02")
+os.chdir("/home/rundeck/projects/RulesInterpreterDemo")
 
 def readConfig(filename):
     """

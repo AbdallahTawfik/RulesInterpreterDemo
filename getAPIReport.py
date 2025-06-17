@@ -747,7 +747,7 @@ def printTable(data, config, start_page):
     # template = template_env.get_template('templates/portraitTable.html')
     env = Environment()
     templateContent = retrieveHTMLTemplate(config['template']).replace(
-                'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterApp02/images/logoFull.png"'
+                'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterDemo/images/logoFull.png"'
             )
     template = env.from_string(templateContent)
 
@@ -801,7 +801,7 @@ async def printPie(response, config, start_page):
     
     env = Environment()
     templateContent = retrieveHTMLTemplate(config['template']).replace(
-                "id=\"icon\"", "src=\"file:///home/rundeck/projects/RulesInterpreterApp02/images/logoFull.png\""
+                "id=\"icon\"", "src=\"file:///home/rundeck/projects/RulesInterpreterDemo/images/logoFull.png\""
             ).replace(
                 'id="graph"', f'src="file://{chart_path}"'
             )
@@ -849,7 +849,7 @@ async def printLine(response, config, start_page):
     
     env = Environment()
     templateContent = retrieveHTMLTemplate(config['template']).replace(
-                'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterApp02/images/logoFull.png"'
+                'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterDemo/images/logoFull.png"'
             ).replace(
                 'id="graph"', f'src="file://{chart_path}"'
             )
@@ -898,7 +898,7 @@ async def printBar(response, config, start_page):
     
     env = Environment()
     templateContent = retrieveHTMLTemplate(config['template']).replace(
-                'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterApp02/images/logoFull.png"'
+                'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterDemo/images/logoFull.png"'
             ).replace(
                 'id="graph"', f'src="file://{chart_path}"'
             )
@@ -946,7 +946,7 @@ async def printDonut(response, config, start_page):
     
     env = Environment()
     templateContent = retrieveHTMLTemplate(config['template']).replace(
-                'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterApp02/images/logoFull.png"'
+                'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterDemo/images/logoFull.png"'
             ).replace(
                 'id="graph"', f'src="file://{chart_path}"'
             )
@@ -1307,7 +1307,7 @@ def printClose(config):
     
     env = Environment()
     templateContent = retrieveHTMLTemplate(indexTemplate).replace(
-                'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterApp02/images/logoFull.png"'
+                'id="icon"', 'src="file:///home/rundeck/projects/RulesInterpreterDemo/images/logoFull.png"'
             )
     template = env.from_string(templateContent)
     
